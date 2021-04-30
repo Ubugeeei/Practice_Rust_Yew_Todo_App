@@ -14,7 +14,6 @@ pub struct State {
 }
 struct Todo {
     description: String,
-    editing: bool,
 }
 
 pub enum Msg {
@@ -31,6 +30,16 @@ pub enum Msg {
     Nope,
 }
 
+impl Model {
+    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
+        html! {
+            <li>
+                { &todo.description }
+            </li>
+        }
+    }
+}
+
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
@@ -39,10 +48,8 @@ impl Component for Model {
         let mut todos = Vec::new();
         let new_todo = Todo {
             description: String::from("aaaa"),
-            editing: false
         };
         todos.push(new_todo);
-
 
         let state = State {
             todos,
@@ -73,7 +80,6 @@ impl Component for Model {
             <div id="todo-app">
                 <h2>{ "Rust Todo App" }</h2>
                 <ul>
-                    <li>{"新しいタスク"}</li>
                     { for self.state.todos.iter().enumerate().map(|e| self.view_todo(e)) }
                 </ul>
             </div>
@@ -82,15 +88,6 @@ impl Component for Model {
 }
 
 
-impl Model {
-    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
-        html! {
-            <li>
-                { &todo.description }
-            </li>
-        }
-    }
-}
 
 #[wasm_bindgen(start)]
 pub fn run_app() {
