@@ -36,7 +36,14 @@ impl Component for Model {
     type Properties = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let todos = Vec::new();
+        let mut todos = Vec::new();
+        let new_todo = Todo {
+            description: String::from("aaaa"),
+            editing: false
+        };
+        todos.push(new_todo);
+
+
         let state = State {
             todos,
             value: "".into(),
@@ -66,14 +73,23 @@ impl Component for Model {
             <div id="todo-app">
                 <h2>{ "Rust Todo App" }</h2>
                 <ul>
-                    <li>
-                        {"新しいタスク"}
-                    </li>
+                    <li>{"新しいタスク"}</li>
+                    { for self.state.todos.iter().enumerate().map(|e| self.view_todo(e)) }
                 </ul>
             </div>
         }
     }
+}
 
+
+impl Model {
+    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
+        html! {
+            <li>
+                { &todo.description }
+            </li>
+        }
+    }
 }
 
 #[wasm_bindgen(start)]
