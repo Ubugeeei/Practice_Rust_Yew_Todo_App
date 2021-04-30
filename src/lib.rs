@@ -4,9 +4,11 @@ use yew::{html, Component, ComponentLink, Html, InputData, NodeRef, ShouldRender
 
 pub struct Model {
     state: State,
+    link: ComponentLink<Self>,
 }
 pub struct State {
     todos: Vec<Todo>,
+    new_todo_description: String,
 }
 struct Todo {
     description: String,
@@ -27,14 +29,27 @@ pub enum Msg {
 }
 
 /**
- * create todo element
+ * create element
  */
 impl Model {
-    fn create_todo_element(&self, (_, todo): (usize, &Todo)) -> Html {
+    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
         html! {
-            <li>
+            <li class="todo">
                 { &todo.description }
             </li>
+        }
+    }
+
+    fn view_form(&self) -> Html {
+        html! {
+            <div id="add-todo-form">
+                <input
+                    oninput=self.link.callback(|e: InputData| Msg::Update(e.value))
+                    placeholder="add new!"
+                    value=&self.state.new_todo_description
+                />
+                <button>{ "Add" }</button>
+            </div>
         }
     }
 }
@@ -46,11 +61,14 @@ impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let todos = Vec::new();
-        let state = State { todos };
+        let state = State {
+            todos,
+            new_todo_description: "".into(),
+        };
 
-        Model { state }
+        Model { state, link, }
     }
 
     fn update(&mut self, _: Self::Message) -> ShouldRender {
@@ -68,8 +86,9 @@ impl Component for Model {
         html! {
             <div id="todo-app">
                 <h2>{ "Rust Todo App" }</h2>
+                { self.view_form() }
                 <ul>
-                    { for self.state.todos.iter().enumerate().map(|e| self.create_todo_element(e)) }
+                    { for self.state.todos.iter().enumerate().map(|e| self.view_todo(e)) }
                 </ul>
             </div>
         }
