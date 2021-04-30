@@ -3,14 +3,10 @@ use wasm_bindgen::prelude::*;
 use yew::{html, Component, ComponentLink, Html, InputData, NodeRef, ShouldRender};
 
 pub struct Model {
-    link: ComponentLink<Self>,
     state: State,
-    focus_ref: NodeRef,
 }
 pub struct State {
     todos: Vec<Todo>,
-    value: String,
-    edit_value: String,
 }
 struct Todo {
     description: String,
@@ -30,8 +26,11 @@ pub enum Msg {
     Nope,
 }
 
+/**
+ * create todo element
+ */
 impl Model {
-    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
+    fn create_todo_element(&self, (_, todo): (usize, &Todo)) -> Html {
         html! {
             <li>
                 { &todo.description }
@@ -40,31 +39,21 @@ impl Model {
     }
 }
 
+/**
+ * main component
+ */
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let mut todos = Vec::new();
-        let new_todo = Todo {
-            description: String::from("aaaa"),
-        };
-        todos.push(new_todo);
+    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+        let todos = Vec::new();
+        let state = State { todos };
 
-        let state = State {
-            todos,
-            value: "".into(),
-            edit_value: "".into(),
-        };
-        let focus_ref = NodeRef::default();
-        Model {
-            link,
-            state,
-            focus_ref,
-        }
+        Model { state }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _: Self::Message) -> ShouldRender {
         false
     }
 
@@ -80,14 +69,12 @@ impl Component for Model {
             <div id="todo-app">
                 <h2>{ "Rust Todo App" }</h2>
                 <ul>
-                    { for self.state.todos.iter().enumerate().map(|e| self.view_todo(e)) }
+                    { for self.state.todos.iter().enumerate().map(|e| self.create_todo_element(e)) }
                 </ul>
             </div>
         }
     }
 }
-
-
 
 #[wasm_bindgen(start)]
 pub fn run_app() {
