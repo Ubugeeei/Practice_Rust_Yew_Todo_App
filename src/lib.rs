@@ -1,9 +1,8 @@
 use wasm_bindgen::prelude::*;
-use yew::{html, Component, ComponentLink, Html, InputData, NodeRef, ShouldRender};
-
 use yew::events::MouseEvent;
+use yew::{html, Component, ComponentLink, Html, InputData, ShouldRender};
 
-pub struct Model {
+pub struct TodoApp {
     state: State,
     link: ComponentLink<Self>,
 }
@@ -14,23 +13,23 @@ pub struct State {
 struct Todo {
     description: String,
 }
-
 pub enum Msg {
     AddTodo,
     DeleteTodo(usize),
     EditTodo(usize),
     UpdateInput(String),
-    Nope
+    Nope,
 }
 
 /**
  * create element
  */
-impl Model {
-    fn view_todo(&self, (_, todo): (usize, &Todo)) -> Html {
+impl TodoApp {
+    fn view_todo(&self, (index, todo): (usize, &Todo)) -> Html {
         html! {
             <li class="todo">
-                { &todo.description }
+                <p>{ &todo.description }</p>
+                <button onclick=self.link.callback(move |_| Msg::DeleteTodo(index))>{ "delete" }</button>
             </li>
         }
     }
@@ -43,9 +42,7 @@ impl Model {
                     placeholder="add new!"
                     value=&self.state.new_todo_description
                 />
-                <button
-                    onclick=self.link.callback(|e: MouseEvent| Msg::AddTodo)
-                >{ "Add" }</button>
+                <button onclick=self.link.callback(|e: MouseEvent| Msg::AddTodo)>{ "Add" }</button>
             </div>
         }
     }
@@ -54,7 +51,7 @@ impl Model {
 /**
  * main component
  */
-impl Component for Model {
+impl Component for TodoApp {
     type Message = Msg;
     type Properties = ();
 
@@ -65,22 +62,23 @@ impl Component for Model {
             new_todo_description: "".into(),
         };
 
-        Model { state, link }
+        TodoApp { state, link }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::AddTodo => {
-                if ! self.state.new_todo_description.is_empty() {
+                if !self.state.new_todo_description.is_empty() {
                     let description = self.state.new_todo_description.trim();
-                    self.state.todos.push(Todo {description: description.to_string()});
+                    self.state.todos.push(Todo {
+                        description: description.to_string(),
+                    });
                     self.state.new_todo_description = "".to_string();
                 }
             }
-            Msg::EditTodo(index) => {
-
-            }
-            Msg::DeleteTodo(idx) => {
+            Msg::EditTodo(index) => {}
+            Msg::DeleteTodo(index) => {
+                self.state.todos.remove(index);
             }
 
             Msg::UpdateInput(val) => {
@@ -102,7 +100,9 @@ impl Component for Model {
         html! {
             <div id="todo-app">
                 <h2>{ "Rust Todo App" }</h2>
+                // form
                 { self.view_form() }
+                // list
                 <ul>
                     { for self.state.todos.iter().enumerate().map(|e| self.view_todo(e)) }
                 </ul>
@@ -113,5 +113,5 @@ impl Component for Model {
 
 #[wasm_bindgen(start)]
 pub fn run_app() {
-    yew::start_app::<Model>();
+    yew::start_app::<TodoApp>();
 }
