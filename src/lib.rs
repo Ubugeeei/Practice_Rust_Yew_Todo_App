@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
-
 use yew::{html, Component, ComponentLink, Html, InputData, NodeRef, ShouldRender};
+
+use yew::events::MouseEvent;
 
 pub struct Model {
     state: State,
@@ -15,17 +16,11 @@ struct Todo {
 }
 
 pub enum Msg {
-    Add,
-    Edit(usize),
-    Update(String),
-    UpdateEdit(String),
-    Remove(usize),
-    ToggleAll,
-    ToggleEdit(usize),
-    Toggle(usize),
-    ClearCompleted,
-    Focus,
-    Nope,
+    AddTodo,
+    DeleteTodo(usize),
+    EditTodo(usize),
+    UpdateInput(String),
+    Nope
 }
 
 /**
@@ -44,11 +39,13 @@ impl Model {
         html! {
             <div id="add-todo-form">
                 <input
-                    oninput=self.link.callback(|e: InputData| Msg::Update(e.value))
+                    oninput=self.link.callback(|e: InputData| Msg::UpdateInput(e.value))
                     placeholder="add new!"
                     value=&self.state.new_todo_description
                 />
-                <button>{ "Add" }</button>
+                <button
+                    onclick=self.link.callback(|e: MouseEvent| Msg::AddTodo)
+                >{ "Add" }</button>
             </div>
         }
     }
@@ -68,11 +65,30 @@ impl Component for Model {
             new_todo_description: "".into(),
         };
 
-        Model { state, link, }
+        Model { state, link }
     }
 
-    fn update(&mut self, _: Self::Message) -> ShouldRender {
-        false
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::AddTodo => {
+                if ! self.state.new_todo_description.is_empty() {
+                    let description = self.state.new_todo_description.trim();
+                    self.state.todos.push(Todo {description: description.to_string()});
+                    self.state.new_todo_description = "".to_string();
+                }
+            }
+            Msg::EditTodo(index) => {
+
+            }
+            Msg::DeleteTodo(idx) => {
+            }
+
+            Msg::UpdateInput(val) => {
+                self.state.new_todo_description = val;
+            }
+            Msg::Nope => {}
+        }
+        true
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
