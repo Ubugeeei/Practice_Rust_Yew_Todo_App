@@ -119,6 +119,7 @@ impl Component for TodoApp {
     /**
      *  Life cycle
      */
+    // onCreate
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let todos = Vec::new();
         let state = State {
@@ -128,17 +129,19 @@ impl Component for TodoApp {
             is_showed_edit_input: false,
             edit_todo_id: 0,
         };
-
         TodoApp { state, link }
     }
 
+    // onRendered
+    fn rendered(&mut self, _first_render: bool) {}
+
+    // onUpdated
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Nope => {}
             Msg::UpdateInput(val) => {
                 self.state.new_todo_description = val;
             }
-
             Msg::AddTodo => {
                 self.state.add_todo()
             }
@@ -157,9 +160,11 @@ impl Component for TodoApp {
         true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
-    }
+    //onChanged
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender { false }
+
+    // onDestroyed
+    fn destroy(&mut self) {}
 
     /**
      *  views
