@@ -12,7 +12,7 @@ pub struct State {
     is_showed_edit_input: bool,
     edit_todo_id: usize,
 }
-struct Todo {
+pub struct Todo {
     id: usize,
     description: String,
 }
